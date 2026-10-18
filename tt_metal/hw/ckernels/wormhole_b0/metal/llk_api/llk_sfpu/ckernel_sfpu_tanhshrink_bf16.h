@@ -22,7 +22,7 @@ struct TanhshrinkBf16Config {
     static constexpr uint32_t kBiasBits = 0xbf800000u;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_cascade_signed_abs_affine.h"
+#include "ckernel_sfpu_tanhshrink_bf16_cascade_signed_abs_affine.h"
 
 namespace ckernel::sfpu {
 
@@ -36,11 +36,11 @@ inline bool bf16_dest_tanhshrink() {
 }
 template <int ITERATIONS = 8>
 inline void calculate_tanhshrink_bf16() {
-    ckernel::sfpu::bf16::calculate_signed_abs_affine<ckernel::sfpu::TanhshrinkBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::tanhshrink::calculate_signed_abs_affine<ckernel::sfpu::TanhshrinkBf16Config, ITERATIONS>();
 }
 inline void init_tanhshrink_bf16() {
     if (bf16_dest_tanhshrink()) {
-        ckernel::sfpu::bf16::init_signed_abs_affine<ckernel::sfpu::TanhshrinkBf16Config>();
+        ckernel::sfpu::bf16::tanhshrink::init_signed_abs_affine<ckernel::sfpu::TanhshrinkBf16Config>();
     }
 }
 
