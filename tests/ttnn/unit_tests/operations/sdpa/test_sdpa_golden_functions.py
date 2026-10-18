@@ -560,6 +560,35 @@ def test_ring_joint_golden_resolves_indexed_layer_metadata():
     torch.testing.assert_close(output, expected)
 
 
+def test_ring_joint_golden_serves_each_lane_from_its_own_slot_and_prefix(expect_error):
+    """Lanes: Q stacks the requests' rows; each lane's reference uses its own cache slot and prefix."""
+    torch.manual_seed(6)
+    lane_rows, num_layers, layer_idx = 2, 2, 1
+    query = torch.randn(1, 2, 3 * lane_rows, 4)
+    key = torch.randn(3 * num_layers, 1, 8, 4)
+    value = torch.randn(3 * num_layers, 1, 8, 3)
+    slots, prefixes = [2, 0, 1], [4, 0, 2]
+    options = dict(logical_n=8, is_causal=True, kv_cache_num_layers=num_layers, kv_cache_layer_idx=layer_idx)
+
+    golden = ttnn.get_golden_function(ttnn.transformer.ring_joint_scaled_dot_product_attention)
+    output, joint_output, _ = golden(
+        query, key, value, slot_id=torch.tensor(slots), kv_actual_isl_tensor=torch.tensor(prefixes), **options
+    )
+    for b, (slot, prefix) in enumerate(zip(slots, prefixes)):
+        lane, _, _ = golden(
+            query[..., b * lane_rows : (b + 1) * lane_rows, :],
+            key,
+            value,
+            slot_id=torch.tensor([slot]),
+            kv_actual_isl_tensor=torch.tensor([prefix]),
+            **options,
+        )
+        torch.testing.assert_close(output[..., b * lane_rows : (b + 1) * lane_rows, :], lane)
+    assert joint_output.shape[-2] == 0
+    with expect_error(ValueError, "one element per lane"):
+        golden(query, key, value, slot_id=torch.tensor(slots), kv_actual_isl_tensor=torch.tensor([0]), **options)
+
+
 def test_ring_joint_golden_uses_actual_kv_length_as_causal_query_offset():
     torch.manual_seed(4)
     query = torch.randn(1, 1, 2, 3)
