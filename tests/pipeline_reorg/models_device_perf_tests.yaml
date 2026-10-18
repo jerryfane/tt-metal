@@ -94,6 +94,8 @@
     tests/ttnn/unit_tests/operations/eltwise/test_unary_category1_bfloat16.py::test_silu_bf16_unflushed_zero_and_subnormal_inputs
     tests/ttnn/unit_tests/operations/eltwise/test_unary_category1_bfloat16.py::test_silu_with_sqrt_in_sfpu_chain
   skus:
+    wh_n300_civ2:
+      timeout: 2
     bh_p150b_civ2:
       timeout: 2
   team: ttnn

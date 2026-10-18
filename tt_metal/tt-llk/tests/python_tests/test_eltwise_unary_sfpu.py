@@ -1644,9 +1644,7 @@ _BF16_EXHAUSTIVE_OPS = [
     (MathOperation.Silu, ApproximationMode.No, 1),
 ]
 # Boards where the op keeps its stock kernel, which this sweep does not test.
-_BF16_STOCK_BOARDS = {
-    MathOperation.Silu: (ChipArchitecture.WORMHOLE,),
-}
+_BF16_STOCK_BOARDS = {}
 # The stored word, per board, at each special input class where the kernel returns its stock
 # kernel's result instead of torch's; the sweep expects that word's class there.
 _BF16_STOCK_SPECIALS = {
@@ -1655,7 +1653,12 @@ _BF16_STOCK_SPECIALS = {
             "neg_subnormal": 0x0000,
             "neg_zero": 0x0000,
             "pos_subnormal": 0x0000,
-        }
+        },
+        ChipArchitecture.WORMHOLE: {
+            "neg_subnormal": 0x0000,
+            "neg_zero": 0x0000,
+            "pos_subnormal": 0x0000,
+        },
     },
 }
 

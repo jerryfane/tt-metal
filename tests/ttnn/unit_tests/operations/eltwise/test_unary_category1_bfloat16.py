@@ -794,7 +794,7 @@ def test_silu_bf16_unflushed_zero_and_subnormal_inputs(device):
     as {word: [(first input, last input), ...]} over the input bits.
     """
     board = "blackhole" if ttnn.device.is_blackhole(device) else "wormhole_b0"
-    if board not in ("blackhole",):
+    if board not in ("blackhole", "wormhole_b0"):
         pytest.skip(f"ttnn.silu keeps its stock kernel on {board}")
     STOCK = {}
     words = torch.cat([torch.arange(0x80), torch.arange(0x8000, 0x8080)]).to(torch.int16)
