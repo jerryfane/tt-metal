@@ -27,7 +27,7 @@ struct CeluBf16Config {
     static constexpr float lut(uint32_t index) { return __builtin_bit_cast(float, kLutBits[index]); }
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_cascade_dense.h"
+#include "ckernel_sfpu_celu_bf16_cascade_dense.h"
 
 namespace ckernel::sfpu {
 
@@ -39,9 +39,9 @@ inline bool bf16_dest_celu() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_celu_bf16() {
-    ckernel::sfpu::bf16::calculate_dense_polynomial<ckernel::sfpu::CeluBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::celu::calculate_dense_polynomial<ckernel::sfpu::CeluBf16Config, ITERATIONS>();
 }
 
 }  // namespace ckernel::sfpu
