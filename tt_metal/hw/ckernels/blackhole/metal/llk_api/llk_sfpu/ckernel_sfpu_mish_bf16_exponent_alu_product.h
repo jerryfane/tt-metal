@@ -4,11 +4,11 @@
 #include "ckernel.h"
 #include "ckernel_defs.h"
 #include "ckernel_sfpu_recip.h"
-#include "sfpu/ckernel_sfpu_bf16_exponent_alu_product_core.h"
+#include "sfpu/ckernel_sfpu_mish_bf16_exponent_alu_product_core.h"
 #include "sfpi.h"
 #include <cstdint>
 #include <limits>
-namespace ckernel::sfpu::bf16 {
+namespace ckernel::sfpu::bf16::mish {
 template <class Config>
 inline void init_exponent_alu_product() {
     sfpi::vConstFloatPrgm1 = Config::kCoefficients[2] * 0x1p-46f;
@@ -19,6 +19,6 @@ inline void init_exponent_alu_product() {
 template <class Config, int Iterations = 32>
 inline void calculate_exponent_alu_product() {
     static_assert(Iterations == 32, "selected product requires whole-tile ownership");
-    sfpi::product_bounded_bh<Config, ADDR_MOD_7, ADDR_MOD_6>();
+    ttpoly::mish::product_bounded_bh<Config, ADDR_MOD_7, ADDR_MOD_6>();
 }
-}  // namespace ckernel::sfpu::bf16
+}  // namespace ckernel::sfpu::bf16::mish

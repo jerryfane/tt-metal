@@ -18,7 +18,7 @@ struct MishBf16Config {
     static constexpr uint32_t kCoordinateUpperBf16 = 17172u;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_exponent_alu_product.h"
+#include "ckernel_sfpu_mish_bf16_exponent_alu_product.h"
 
 namespace ckernel::sfpu {
 
@@ -31,9 +31,9 @@ inline bool bf16_dest_mish() {
 #endif
 }
 // The Blackhole whole-tile call as the fitter's scheduler issues it (ttpoly/sfpu_schedule.py): the
-// compiled instructions of ckernel::sfpu::bf16::calculate_exponent_alu_product<ckernel::sfpu::MishBf16Config, 32> in a
-// stall-filling order, rows addressed by their immediates, constants held in LRegs. It stores the same word for every
-// BF16 input.
+// compiled instructions of ckernel::sfpu::bf16::mish::calculate_exponent_alu_product<ckernel::sfpu::MishBf16Config, 32>
+// in a stall-filling order, rows addressed by their immediates, constants held in LRegs. It stores the same word for
+// every BF16 input.
 inline void calculate_mish_bf16_scheduled() {
     TTI_SFPLOADI(7, 8, 0x3fb8);
     TTI_SFPLOADI(7, 0xa, 0xaa3b);
@@ -402,17 +402,17 @@ inline void calculate_mish_bf16_scheduled() {
     }
 }
 
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_mish_bf16() {
     if constexpr (ITERATIONS == 32) {
         calculate_mish_bf16_scheduled();
     } else {
-        ckernel::sfpu::bf16::calculate_exponent_alu_product<ckernel::sfpu::MishBf16Config, ITERATIONS>();
+        ckernel::sfpu::bf16::mish::calculate_exponent_alu_product<ckernel::sfpu::MishBf16Config, ITERATIONS>();
     }
 }
 inline void init_mish_bf16() {
     if (bf16_dest_mish()) {
-        ckernel::sfpu::bf16::init_exponent_alu_product<ckernel::sfpu::MishBf16Config>();
+        ckernel::sfpu::bf16::mish::init_exponent_alu_product<ckernel::sfpu::MishBf16Config>();
     }
 }
 

@@ -5,8 +5,11 @@
 // Selected product bodies. Caller owns initialization and SFPU start/done.
 #include <cstdint>
 
-namespace sfpi
+namespace ckernel::sfpu::ttpoly::mish
 {
+using namespace ::sfpi;
+using ::sfpi::DataLayout;
+
 template <class Config, std::uint32_t Hold, std::uint32_t Advance>
 inline void product_bounded_bh()
 {
@@ -125,4 +128,4 @@ inline void product_bounded_bh()
         same_row_suffix();
     }
 }
-} // namespace sfpi
+} // namespace ckernel::sfpu::ttpoly::mish
