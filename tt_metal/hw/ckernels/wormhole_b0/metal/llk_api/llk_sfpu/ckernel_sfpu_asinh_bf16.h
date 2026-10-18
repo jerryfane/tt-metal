@@ -37,7 +37,7 @@ struct AsinhBf16Config {
     static constexpr bool kMirrorFold = true;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_symmetric_factored_log.h"
+#include "ckernel_sfpu_asinh_bf16_symmetric_factored_log.h"
 
 namespace ckernel::sfpu {
 
@@ -49,9 +49,9 @@ inline bool bf16_dest_asinh() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_asinh_bf16() {
-    ckernel::sfpu::bf16::calculate_symmetric_factored_log<ckernel::sfpu::AsinhBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::asinh::calculate_symmetric_factored_log<ckernel::sfpu::AsinhBf16Config, ITERATIONS>();
 }
 
 }  // namespace ckernel::sfpu

@@ -578,6 +578,35 @@ def test_exp2_allclose(device):
     assert_allclose(actual_result=result, expected_result=golden, atol=8.5e-39, rtol=0)
 
 
+def test_exp2_special_values(device):
+    """exp2 saturation and infinity handling, which the bfloat16 sweeps replace with 0 (see #44507).
+
+    | Input                    | Expected                                   |
+    |--------------------------|--------------------------------------------|
+    | -inf                     | 0                                          |
+    | -127                     | 0 (golden 2^-127 is subnormal; device FTZ) |
+    | -126                     | 2^-126, smallest normal (ULP ≤ 1)          |
+    | 0, ±1, ±10, 127          | ULP ≤ 1                                    |
+    | 128, +inf                | +inf                                       |
+
+    NaN is excluded: ttnn.bfloat16 host-side packing turns NaN into +inf before
+    the tensor reaches the device, so NaN propagation can't be tested at this dtype.
+    """
+    input_tensor = torch.tensor(
+        [0.0, 1.0, -1.0, 10.0, -10.0, 127.0, -126.0, float("inf"), -float("inf"), 128.0, -127.0],
+        dtype=torch.bfloat16,
+    )
+
+    tt_in = to_tt_tensor(input_tensor, device)
+
+    golden_function = ttnn.get_golden_function(ttnn.exp2)
+    golden = flush_subnormal_values_to_zero(golden_function(input_tensor, device=device))
+
+    result = ttnn.to_torch(ttnn.exp2(tt_in))
+
+    assert_with_ulp(expected_result=golden, actual_result=result, ulp_threshold=1, allow_nonfinite=True)
+
+
 @pytest.mark.parametrize(
     "low, high, expected_atol, expected_rtol",
     [
@@ -759,9 +788,10 @@ def test_asinh_bf16_unflushed_zero_and_subnormal_inputs(device):
     """TT-NN's copy into DEST keeps -0 and subnormal BF16 inputs, which the LLK sweep's unpack delivers as +0.
 
     Each such input and +0 must store torch's result: its class as the BF16 pack stores it (NaN as
-    +inf, -0 as +0, a subnormal result as 0) and a finite result within 1 ULP of torch's float64
-    value. STOCK lists, per board, the inputs where the kernel stores its stock kernel's word
-    instead, as {word: [(first input, last input), ...]} over the input bits.
+    +inf, a subnormal result as 0) and a finite result within 1 ULP of torch's float64 value.
+    The pack writes a zero result as +0, so ±0 and both signs of subnormal store the word 0x0000.
+    STOCK lists, per board, the inputs where the kernel stores its stock kernel's word instead,
+    as {word: [(first input, last input), ...]} over the input bits.
     """
     board = "blackhole" if ttnn.device.is_blackhole(device) else "wormhole_b0"
     if board not in ("blackhole", "wormhole_b0"):
@@ -777,14 +807,21 @@ def test_asinh_bf16_unflushed_zero_and_subnormal_inputs(device):
         t = torch.where(torch.isnan(t), torch.full_like(t, float("inf")), t)
         return torch.where(t.abs() < tiny, torch.zeros_like(t), t)
 
-    actual = stored(ttnn.to_torch(ttnn.asinh(tt_x)))
+    device_out = ttnn.to_torch(ttnn.asinh(tt_x))
+    raw = device_out.reshape(-1).view(torch.int16).to(torch.int32) & 0xFFFF
+    bits = words.repeat(4).to(torch.int32) & 0xFFFF
+    assert torch.all(raw[bits == 0x0000] == 0x0000)
+    assert torch.all(raw[bits == 0x8000] == 0x0000)
+    assert torch.all(raw[(bits > 0) & (bits < 0x80)] == 0x0000)
+    assert torch.all(raw[(bits > 0x8000) & (bits < 0x8080)] == 0x0000)
+
+    actual = stored(device_out)
     x64 = x.flatten().to(torch.float64)
     reference = ttnn.get_golden_function(ttnn.asinh)(x64).to(torch.float64).flatten()
     rounded = stored(reference)
     spacing = 2.0 ** (torch.floor(torch.log2(reference.abs().clamp(min=tiny))) - 7)
     close = torch.isfinite(reference) & (actual != 0) & ((actual - reference).abs() < spacing)
     ok = (actual == rounded) | close
-    bits = words.repeat(4).to(torch.int32) & 0xFFFF
     for word, ranges in STOCK.get(board, {}).items():
         value = stored(torch.tensor([word], dtype=torch.int32).to(torch.int16).view(torch.bfloat16))
         for first, last in ranges:
