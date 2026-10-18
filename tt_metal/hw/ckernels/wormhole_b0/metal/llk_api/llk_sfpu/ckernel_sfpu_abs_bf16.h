@@ -11,7 +11,7 @@ struct AbsBf16Config {
     static constexpr uint32_t kBodySlots = 6u;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_abs_value.h"
+#include "ckernel_sfpu_abs_bf16_abs_value.h"
 
 namespace ckernel::sfpu {
 
@@ -23,13 +23,13 @@ inline bool bf16_dest_abs() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_abs_bf16() {
-    ckernel::sfpu::bf16::calculate_abs_value<ckernel::sfpu::AbsBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::abs::calculate_abs_value<ckernel::sfpu::AbsBf16Config, ITERATIONS>();
 }
 inline void init_abs_bf16() {
     if (bf16_dest_abs()) {
-        ckernel::sfpu::bf16::init_abs_value<ckernel::sfpu::AbsBf16Config>();
+        ckernel::sfpu::bf16::abs::init_abs_value<ckernel::sfpu::AbsBf16Config>();
     }
 }
 
