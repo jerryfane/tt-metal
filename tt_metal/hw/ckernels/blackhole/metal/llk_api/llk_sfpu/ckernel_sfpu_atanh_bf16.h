@@ -33,7 +33,7 @@ struct AtanhBf16Config {
     static constexpr bool kRawEarly = true;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_rational_parity.h"
+#include "ckernel_sfpu_atanh_bf16_rational_parity.h"
 
 namespace ckernel::sfpu {
 
@@ -45,13 +45,13 @@ inline bool bf16_dest_atanh() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_atanh_bf16() {
-    ckernel::sfpu::bf16::calculate_rational_parity<ckernel::sfpu::AtanhBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::atanh::calculate_rational_parity<ckernel::sfpu::AtanhBf16Config, ITERATIONS>();
 }
 inline void init_atanh_bf16() {
     if (bf16_dest_atanh()) {
-        ckernel::sfpu::bf16::init_rational_parity<ckernel::sfpu::AtanhBf16Config>();
+        ckernel::sfpu::bf16::atanh::init_rational_parity<ckernel::sfpu::AtanhBf16Config>();
     }
 }
 
