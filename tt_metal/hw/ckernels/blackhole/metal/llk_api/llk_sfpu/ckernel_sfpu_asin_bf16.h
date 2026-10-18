@@ -27,7 +27,7 @@ struct AsinBf16Config {
     static constexpr unsigned kRawExcluded = 0x80ffu;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_half_angle_ratio.h"
+#include "ckernel_sfpu_asin_bf16_half_angle_ratio.h"
 
 namespace ckernel::sfpu {
 
@@ -39,13 +39,13 @@ inline bool bf16_dest_asin() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_asin_bf16() {
-    ckernel::sfpu::bf16::calculate_half_angle_ratio<ckernel::sfpu::AsinBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::asin::calculate_half_angle_ratio<ckernel::sfpu::AsinBf16Config, ITERATIONS>();
 }
 inline void init_asin_bf16() {
     if (bf16_dest_asin()) {
-        ckernel::sfpu::bf16::init_half_angle_ratio<ckernel::sfpu::AsinBf16Config>();
+        ckernel::sfpu::bf16::asin::init_half_angle_ratio<ckernel::sfpu::AsinBf16Config>();
     }
 }
 
