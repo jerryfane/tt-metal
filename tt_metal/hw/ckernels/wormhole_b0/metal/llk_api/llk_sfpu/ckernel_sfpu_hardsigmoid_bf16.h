@@ -10,7 +10,7 @@ struct HardsigmoidBf16Config {
     static constexpr uint32_t kInterceptBits = 0x3f000000u;
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_clamped_affine.h"
+#include "ckernel_sfpu_hardsigmoid_bf16_clamped_affine.h"
 
 namespace ckernel::sfpu {
 
@@ -22,13 +22,13 @@ inline bool bf16_dest_hardsigmoid() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_hardsigmoid_bf16() {
-    ckernel::sfpu::bf16::calculate_clamped_affine<ckernel::sfpu::HardsigmoidBf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::hardsigmoid::calculate_clamped_affine<ckernel::sfpu::HardsigmoidBf16Config, ITERATIONS>();
 }
 inline void init_hardsigmoid_bf16() {
     if (bf16_dest_hardsigmoid()) {
-        ckernel::sfpu::bf16::init_clamped_affine<ckernel::sfpu::HardsigmoidBf16Config>();
+        ckernel::sfpu::bf16::hardsigmoid::init_clamped_affine<ckernel::sfpu::HardsigmoidBf16Config>();
     }
 }
 

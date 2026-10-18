@@ -8,7 +8,7 @@
 #include "sfpi.h"
 #include "sfpu/ckernel_sfpu_relu.h"
 
-namespace ckernel::sfpu::bf16
+namespace ckernel::sfpu::bf16::hardsigmoid
 {
 constexpr std::uint32_t kClampHold    = ADDR_MOD_3;
 constexpr std::uint32_t kClampAdvance = ADDR_MOD_2;
@@ -52,4 +52,4 @@ inline void clamped_affine_pairs()
         TTI_REPLAY(0, Config::kBodySlots, 0, 0);
     }
 }
-} // namespace ckernel::sfpu::bf16
+} // namespace ckernel::sfpu::bf16::hardsigmoid

@@ -6,11 +6,11 @@
 #include "ckernel_defs.h"
 #include "sfpi.h"
 #include "sfpu/ckernel_sfpu_relu.h"
-#include "sfpu/ckernel_sfpu_bf16_clamped_affine.h"
+#include "sfpu/ckernel_sfpu_hardsigmoid_bf16_clamped_affine.h"
 
-namespace ckernel::sfpu::bf16 {
+namespace ckernel::sfpu::bf16::hardsigmoid {
 template <typename Config, int Iterations = 8>
 inline void calculate_clamped_affine() {
     clamped_affine_pairs<Config, Iterations>();
 }
-}  // namespace ckernel::sfpu::bf16
+}  // namespace ckernel::sfpu::bf16::hardsigmoid
