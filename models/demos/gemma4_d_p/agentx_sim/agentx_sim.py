@@ -379,6 +379,8 @@ def run(
             send, g = heapq.heappop(arrivals)
             admit(g, send)
         if not req:
+            if not arrivals and (not freed or next_sess >= len(order)):
+                break  # nothing left to run: the clock stays at the last step's end
             t = min(arrivals[0][0] if arrivals else math.inf, freed[0] if freed else math.inf)
             continue
         # pick this step's pieces: [(node, units)]

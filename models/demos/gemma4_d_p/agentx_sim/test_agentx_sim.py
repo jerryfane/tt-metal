@@ -90,3 +90,6 @@ def test_next_session_starts_when_the_first_response_ends():
     by_len = {x.n_in: x for x in res["_stats"]}
     first_response_end = min(by_len[BLOCK].done, by_len[BLOCK - 1].done + 100.0)
     assert by_len[2 * BLOCK].send == pytest.approx(first_response_end)
+    # The run ends at the last step, not at the last response or past it.
+    assert res["makespan_s"] == pytest.approx(by_len[2 * BLOCK].done)
+    assert res["tok_s_wall"] > 0
