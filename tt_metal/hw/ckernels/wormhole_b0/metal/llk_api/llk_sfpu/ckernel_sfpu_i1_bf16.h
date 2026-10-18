@@ -63,7 +63,7 @@ struct I1Bf16Config {
           0.0000000000000000e+00f}}};
 };
 }  // namespace ckernel::sfpu
-#include "ckernel_sfpu_bf16_exp_root.h"
+#include "ckernel_sfpu_i1_bf16_exp_root.h"
 
 namespace ckernel::sfpu {
 
@@ -75,13 +75,13 @@ inline bool bf16_dest_i1() {
     return false;
 #endif
 }
-template <int ITERATIONS = 8>
+template <int ITERATIONS = 32>
 inline void calculate_i1_bf16() {
-    ckernel::sfpu::bf16::calculate_exp_root<ckernel::sfpu::I1Bf16Config, ITERATIONS>();
+    ckernel::sfpu::bf16::i1::calculate_exp_root<ckernel::sfpu::I1Bf16Config, ITERATIONS>();
 }
 inline void init_i1_bf16() {
     if (bf16_dest_i1()) {
-        ckernel::sfpu::bf16::init_exp_root<ckernel::sfpu::I1Bf16Config>();
+        ckernel::sfpu::bf16::i1::init_exp_root<ckernel::sfpu::I1Bf16Config>();
     }
 }
 
